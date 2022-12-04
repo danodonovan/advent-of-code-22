@@ -1,7 +1,7 @@
 import string
 import sys
 
-with open(sys.argv[1]) as fh:
+with open(sys.argv[1], encoding="UTF-8") as fh:
     lines = [line.strip() for line in fh.readlines()]
 
 
@@ -24,13 +24,13 @@ print(f"sum: {sum(priority[_double_pack(line)] for line in lines)}")
 print("should be 157 in test")
 
 
-def _triple_bags(*lines):
-    l1, l2, l3 = lines
+def _triple_bags(*lines_):
+    l1, l2, l3 = lines_
     return list(set(l1) & set(l2) & set(l3))[0]
 
 
 sum_vals = sum(
-    [priority[_triple_bags(*lines[i : i + 3])] for i in range(0, len(lines), 3)]
+    priority[_triple_bags(*lines[i : i + 3])] for i in range(0, len(lines), 3)
 )
 
 print(sum_vals, " = should be 70 in test")

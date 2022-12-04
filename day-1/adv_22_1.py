@@ -1,7 +1,7 @@
 import sys
 
-# part one
 
+# part one
 raw_data = sys.argv[1]
 
 elf_cals = [sum(map(int, chunk.split("\n"))) for chunk in raw_data.split("\n\n")]

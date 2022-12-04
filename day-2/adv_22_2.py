@@ -1,6 +1,6 @@
 import sys
 
-with open(sys.argv[1], "r") as fh:
+with open(sys.argv[1], "r", encoding="UTF-8") as fh:
     text = fh.readlines()
 
 lookup = {
@@ -24,21 +24,22 @@ lose = {"Rock": "Paper", "Paper": "Scissors", "Scissors": "Rock"}
 def p1_round_score(you, other):
     def _score(you, other):
         if you == other:
-            return 3
+            r = 3
         elif you == "Rock" and other == "Paper":
-            return 0
+            r = 0
         elif you == "Rock" and other == "Scissors":
-            return 6
+            r = 6
         elif you == "Paper" and other == "Rock":
-            return 6
+            r = 6
         elif you == "Paper" and other == "Scissors":
-            return 0
+            r = 0
         elif you == "Scissors" and other == "Rock":
-            return 0
+            r = 0
         elif you == "Scissors" and other == "Paper":
-            return 6
+            r = 6
         else:
             raise Exception
+        return r
 
     return score[you] + _score(you, other)
 
@@ -46,17 +47,17 @@ def p1_round_score(you, other):
 # part 2 alt score
 def round_score(other_code, you_code):
     other = lookup[other_code]
-    you = lookup[you_code]
 
     def _new_you(you_code, other):
         if you_code == "X":  # lose
-            return 0, win[other]
+            r = 0, win[other]
         elif you_code == "Z":  # win
-            return 6, lose[other]
+            r = 6, lose[other]
         elif you_code == "Y":  # draw
-            return 3, other
+            r = 3, other
         else:
             raise Exception(you_code, other)
+        return r
 
     win_score, new_you = _new_you(you_code, other)
 
