@@ -18,7 +18,7 @@ def monkey_parser(text_lines):
     monkey_list = []
     _lines = [line for line in text_lines if line]
     for i in range(0, len(_lines), 6):
-        monkey_lines = _lines[i:i+6]
+        monkey_lines = _lines[i : i + 6]
 
         monkey_obj = _monkey_parser(monkey_lines)
         monkey_list.append(monkey_obj)
@@ -52,7 +52,7 @@ def _monkey_parser(monkey_lines):
         op_str=op_str,
         test_div=int(test_div_str),
         test_true=int(true_str),
-        test_false=int(false_str)
+        test_false=int(false_str),
     )
 
 
@@ -92,10 +92,7 @@ def main():
     with open(sys.argv[1], encoding="UTF-8") as fh:
         lines = [line.strip() for line in fh.readlines()]
 
-    monkey_lookup = {
-        monkey.id: monkey
-        for monkey in monkey_parser(lines)
-    }
+    monkey_lookup = {monkey.id: monkey for monkey in monkey_parser(lines)}
 
     modulo = prod(monkey.test_div for monkey in monkey_lookup.values())
 
@@ -103,15 +100,15 @@ def main():
         monkey_lookup = monkey_round(monkey_lookup, modulo)
 
         if round_ in {1, 20, 10000}:
-            print(f'round {round_}')
+            print(f"round {round_}")
             for monkey in monkey_lookup.values():
                 print(f"monkey {monkey.id} {monkey.inspect}")
 
     inspects = sorted([m.inspect for m in monkey_lookup.values()])
     product = inspects[-2] * inspects[-1]
 
-    print(f'{product} should be 10605 in test')
-    print(f'{product} should be 2713310158 in p2 test')
+    print(f"{product} should be 10605 in test")
+    print(f"{product} should be 2713310158 in p2 test")
 
 
 if __name__ == "__main__":

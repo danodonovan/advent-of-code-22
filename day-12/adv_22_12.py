@@ -5,9 +5,7 @@ import sys
 import numpy as np
 
 
-SCORES = dict(
-    zip(string.ascii_lowercase, range(len(string.ascii_lowercase)))
-    )
+SCORES = dict(zip(string.ascii_lowercase, range(len(string.ascii_lowercase))))
 SCORES["S"] = 0
 SCORES["E"] = len(string.ascii_lowercase) - 1
 
@@ -98,8 +96,7 @@ def main():
         if path:
             path_lengths.append(len(path) - 1)
 
-
-    # print(f"length: {len(path) - 1} - in test should be 31")
+    # print(f"length: {len(path) - 1} - in test should be 31")
     print(f"length: {min(path_lengths)} - in test should be 29")
 
     # import IPython
