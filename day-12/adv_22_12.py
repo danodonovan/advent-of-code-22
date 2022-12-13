@@ -84,13 +84,23 @@ def main():
     (x0,), (y0,) = np.where(pure_grid == "S")
     (xn,), (yn,) = np.where(pure_grid == "E")
 
-    start = grid[x0, y0]
-    end = grid[xn, yn]
-
     graph = build_graph(grid)
 
-    path = shortest_path(graph, start, end)
-    print(f"length: {len(path) - 1} - in test should be 31")
+    x0s, y0s = np.where(pure_grid == "a")
+
+    path_lengths = []
+    for x0, y0 in zip(x0s, y0s):
+        start = grid[x0, y0]
+        end = grid[xn, yn]
+
+        path = shortest_path(graph, start, end)
+
+        if path:
+            path_lengths.append(len(path) - 1)
+
+
+    # print(f"length: {len(path) - 1} - in test should be 31")
+    print(f"length: {min(path_lengths)} - in test should be 29")
 
     # import IPython
 
