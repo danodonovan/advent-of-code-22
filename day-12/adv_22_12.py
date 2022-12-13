@@ -1,16 +1,15 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import string
 import sys
 
 import numpy as np
 
 
-SCORES = {
-    char: score
-    for char, score in zip(string.ascii_lowercase, range(len(string.ascii_lowercase)))
-}
+SCORES = dict(
+    zip(string.ascii_lowercase, range(len(string.ascii_lowercase)))
+    )
 SCORES["S"] = 0
-SCORES["E"] = len(string.ascii_lowercase)
+SCORES["E"] = len(string.ascii_lowercase) - 1
 
 
 @dataclass
@@ -18,7 +17,6 @@ class Loc:
     x: int
     y: int
     signal: str
-    next: list["Loc", ...] = field(default_factory=list)
 
     @property
     def xy(self) -> (int, int):
@@ -28,7 +26,7 @@ class Loc:
         return SCORES[self.signal] - SCORES[prev_loc.signal] - 1 <= 0
 
     def __repr__(self):
-        return self.signal
+        return f"{self.xy}: {self.signal}"
 
 
 def _read(filename):
@@ -49,67 +47,101 @@ def _read_grid(filename):
     with open(filename, encoding="UTF-8") as fh:
         lines = fh.readlines()
 
-    grid = np.array([[char for char in line.strip()] for line in lines])
+    grid = np.array([list(line.strip()) for line in lines])
 
     return grid
 
 
-def sub(grid, x, y, xsize, ysize):
-    sx, sy = grid.shape
-    xmsize = max(x - xsize + 1, 0)
-    xpsize = min(x + xsize, sx)
-    ymsize = max(y - ysize + 1, 0)
-    ypsize = min(y + ysize, sy)
+def sub(grid, x, y):
+    if x - 1 >= 0:
+        left = grid[x - 1, y]
+    else:
+        left = None
+    if x + 1 < grid.shape[0]:
+        right = grid[x + 1, y]
+    else:
+        right = None
 
-    return grid[xmsize:xpsize, ymsize:ypsize]
+    if y - 1 >= 0:
+        up = grid[x, y - 1]
+    else:
+        up = None
+    if y + 1 < grid.shape[1]:
+        down = grid[x, y + 1]
+    else:
+        down = None
+
+    return np.array(list(filter(None, [left, right, up, down])))
 
 
 def main():
     grid = _read(sys.argv[1])
-    x_size, y_size = grid.shape
     pure_grid = _read_grid(sys.argv[1])
     print(np.array(list(map(str, range(grid.shape[1])))))
     print(pure_grid)
 
     # start and end
     (x0,), (y0,) = np.where(pure_grid == "S")
-    # (xn,), (yn,) = np.where(pure_grid == 'E')
+    (xn,), (yn,) = np.where(pure_grid == "E")
 
-    # print(sub(grid, x0, y0, 2, 2))
-    # print(sub(grid, x0 + 2, y0 + 4, 2, 2))
+    start = grid[x0, y0]
+    end = grid[xn, yn]
 
-    # build tree
+    graph = build_graph(grid)
+
+    path = shortest_path(graph, start, end)
+    print(f"length: {len(path) - 1} - in test should be 31")
+
+    # import IPython
+
+    # IPython.embed(using=False, header="")
+
+
+def build_graph(grid):
+    graph = {}
+    x_size, y_size = grid.shape
     for x in range(x_size):
         for y in range(y_size):
             loc = grid[x, y]
 
-            nbors = sub(grid, x, y, 2, 2)
+            nbors = sub(grid, x, y)
 
-            loc.next = [
+            graph[loc.xy] = [
                 nbor
                 for nbor in nbors.flatten()
                 if nbor.steppable(loc) and loc.xy != nbor.xy
             ]
 
-    # walk tree until we reach E
-    path = []
-    start = grid[x0, y0]
-    walk_path(start, path)
-    print(path)
-
-    # import IPython; IPython.embed(using=False, header='')
+    return graph
 
 
-def walk_path(location, path):
-    if location.signal == "E":
-        return path
+def shortest_path(graph, node1, node2):
+    path_list = [[node1]]
+    path_index = 0
 
-    for next_location in location.next:
-        if next_location in path:
-            continue
-        path.append(next_location)
-        return walk_path(next_location, path)
+    # To keep track of previously visited nodes
+    previous_nodes = {node1.xy}
 
+    while path_index < len(path_list):
+        current_path = path_list[path_index]
+        last_node = current_path[-1]
+        next_nodes = graph[last_node.xy]
+        # Search goal node
+        if node2 in next_nodes:
+            current_path.append(node2)
+            return current_path
+        # Add new paths
+        for next_node in next_nodes:
+            if not next_node.xy in previous_nodes:
+                new_path = current_path[:]
+                new_path.append(next_node)
+                path_list.append(new_path)
+                # To avoid backtracking
+                previous_nodes.add(next_node.xy)
+        # Continue to next path in list
+        path_index += 1
+    # No path is found
+    return []
 
 
 if __name__ == "__main__":
